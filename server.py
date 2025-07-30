@@ -204,7 +204,8 @@ starlette_app = Starlette(
     routes=[Mount("/mcp", handle_streamable_http)],
     lifespan=lifespan,
 )
-
+# Prevent automatic redirection of trailing slashes
+starlette_app.router.redirect_slashes = False 
 
 # ---------------------------------------------------------------------------
 # Entry point
