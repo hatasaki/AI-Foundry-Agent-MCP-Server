@@ -64,23 +64,25 @@ export AZURE_AI_AGENT_ID="agent-123456"
 export API_KEY="replace-me"
 
 # 3 ) Launch the service
-python server.py  # listens on http://localhost:3000
+python server.py  # listens on http://localhost:3000/mcp
 ```
 
 ## Running on Azure Container Apps
-A `Dockerfile` is included, but you don’t need to invoke `docker build` / `docker push` yourself—`az containerapp up` can build, push, and deploy in one step.
+A `Dockerfile` is included, and a GitHub Actions workflow automatically builds and publishes the container image to
+**GitHub Container Registry (GHCR)** as `ghcr.io/hatasaki/ai-foundry-agent-mcp-server:latest`. You can deploy this pre-built image straight to
+Azure Container Apps—no local `docker build` / `docker push` required.
 
 ```bash
 # 0) Sign in and select the correct subscription
 az login
 az account set --subscription <SUBSCRIPTION_ID>
 
-# 1) Build, push, and deploy the Container App in a single command
+# 1) Deploy the latest image published to GHCR
 az containerapp up \
   --name foundry-mcp-server \
   --resource-group <RESOURCE_GROUP> \
   --environment <CONTAINER_APPS_ENV> \
-  --source . \                       # Builds using the local Dockerfile and pushes to a generated or existing ACR
+  --image ghcr.io/hatasaki/ai-foundry-agent-mcp-server:latest \
   --target-port 3000 \
   --ingress external \
   --env-vars AZURE_AI_ENDPOINT=$AZURE_AI_ENDPOINT \
@@ -100,8 +102,22 @@ az role assignment create \
   --role "Azure AI User" \
   --scope "/subscriptions/<SUBSCRIPTION_ID>/resourceGroups/<FOUNDRY_RG>/providers/Microsoft.AIFoundry/accounts/<ACCOUNT_NAME>/projects/<PROJECT_NAME>"
 
-# 3) Verify
+# 3) Verify and check your container app's ingress url
 az containerapp show --name foundry-mcp-server --resource-group <RESOURCE_GROUP> -o table
+
+# 4) Add MCP Clinet (Such as VSCode, MCP Client for Azure) to connect
+VSCode mcp.json sample:
+{
+  "servers": {
+    "Foundry MCP server": {
+      "type": "http",
+      "url": "https://foundry-mcp-server.xxx.<region>.azurecontainerapps.io/mcp",
+      "headers": {
+        "x-api-key": "<your api key>"
+      }
+    }
+  }
+}
 ```
 
 ## Disclaimer

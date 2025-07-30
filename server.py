@@ -201,7 +201,7 @@ async def lifespan(app: Starlette) -> AsyncIterator[None]:
 # Build the final Starlette ASGI app
 starlette_app = Starlette(
     debug=True,
-    routes=[Mount("/", handle_streamable_http)],
+    routes=[Mount("/mcp", handle_streamable_http)],
     lifespan=lifespan,
 )
 
