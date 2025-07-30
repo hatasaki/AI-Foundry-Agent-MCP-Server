@@ -40,6 +40,10 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
+            # Disable automatic branch tags (e.g., "main")
+            type=ref,event=branch,enable=false
 
       # Build and push the image
       - name: Build & push Docker image
@@ -47,6 +51,9 @@ jobs:
         with:
           context: .
           push: true
+          platforms: linux/amd64
+          provenance: false   # disable provenance image (unknown/unknown)
+          sbom: false          # disable SBOM attestation image
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           # Enable BuildKit cache for faster subsequent builds
