@@ -1,0 +1,38 @@
+# Files and directories to exclude from the Docker build context
+# -------------------------------------------------------------
+# Python bytecode and cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+*.venv/
+venv/
+
+# Environment & configuration files
+.env
+*.env
+
+# Logs & coverage reports
+*.log
+htmlcov/
+.coverage
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Node modules
+node_modules/
+
+# Editor & OS specific files
+.vscode/
+.idea/
+.DS_Store
+
+# Git
+.git/
+.gitignore
+
+# Misc
+*.sqlite

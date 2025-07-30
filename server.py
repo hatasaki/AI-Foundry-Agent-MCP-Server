@@ -204,8 +204,26 @@ starlette_app = Starlette(
     routes=[Mount("/mcp", handle_streamable_http)],
     lifespan=lifespan,
 )
-# Prevent automatic redirection of trailing slashes
-starlette_app.router.redirect_slashes = False 
+
+# ---------------------------------------------------------------------------
+# Middleware to accept '/mcp' (no trailing slash) without redirect
+# ---------------------------------------------------------------------------
+
+class _MCPRootMiddleware:
+    # Rewrite a request to '/mcp' so that it behaves as '/mcp/'
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send):
+        if scope.get("type") == "http" and scope.get("path") == "/mcp":
+            scope = dict(scope)
+            scope["path"] = "/mcp/"
+        await self.app(scope, receive, send)
+
+
+# Wrap the Starlette app with the middleware
+asgi_app = _MCPRootMiddleware(starlette_app)
 
 # ---------------------------------------------------------------------------
 # Entry point
@@ -216,4 +234,4 @@ if __name__ == "__main__":
 
     # Allow overriding the listening port via the PORT environment variable
     port = int(os.environ.get("PORT", "3000"))
-    uvicorn.run(starlette_app, host="0.0.0.0", port=port)
+    uvicorn.run(asgi_app, host="0.0.0.0", port=port)
