@@ -43,7 +43,7 @@ The server is configured entirely through environment variables:
 
 | Variable | Description |
 |----------|-------------|
-| `AZURE_AI_ENDPOINT` | HTTPS endpoint of the target AI Foundry workspace (e.g. `https://<your-resource>.services.ai.azure.com/api/projects/<your-project>`) |
+| `AZURE_AI_ENDPOINT` | HTTPS endpoint of the target AI Foundry (e.g. `https://<your-resource>.services.ai.azure.com/api/projects/<your-project>`) |
 | `AZURE_AI_AGENT_ID` | Identifier of the agent you wish to expose |
 | `API_KEY` | Value that clients must send in the `x-api-key` HTTP header |
 | `PORT` *(optional)* | TCP port to bind to (default `3000`) |
@@ -101,7 +101,7 @@ PRINCIPAL_ID=$(az containerapp show \
 az role assignment create \
   --assignee $PRINCIPAL_ID \
   --role "Azure AI User" \
-  --scope "/subscriptions/<SUBSCRIPTION_ID>/resourceGroups/<FOUNDRY_RG>/providers/Microsoft.AIFoundry/accounts/<ACCOUNT_NAME>/projects/<PROJECT_NAME>"
+  --scope $(az resource show --name <AI_Foundry_Name> --resource-group <FOUNDRY_RESOURCE_GROUP> --resource-type Microsoft.CognitiveServices/accounts --query id --output tsv)
 
 # 3) Verify and check your container app's ingress url
 az containerapp show --name foundry-mcp-server --resource-group <RESOURCE_GROUP> -o table
