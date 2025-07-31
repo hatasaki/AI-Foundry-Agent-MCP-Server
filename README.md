@@ -85,9 +85,10 @@ az containerapp up \
   --image ghcr.io/hatasaki/ai-foundry-agent-mcp-server:latest \
   --target-port 3000 \
   --ingress external \
+  --secrets API_KEY=$API_KEY \
   --env-vars AZURE_AI_ENDPOINT=$AZURE_AI_ENDPOINT \
              AZURE_AI_AGENT_ID=$AZURE_AI_AGENT_ID \
-             API_KEY=$API_KEY \
+             API_KEY=secretref:API_KEY \
              PORT=3000 \
   --system-assigned                   # Enable a system-assigned managed identity
 
