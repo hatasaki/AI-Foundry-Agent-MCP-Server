@@ -69,7 +69,7 @@ python server.py  # listens on http://localhost:3000/mcp
 
 ## Running on Azure Container Apps
 A `Dockerfile` is included, and a GitHub Actions workflow automatically builds and publishes the container image to
-**GitHub Container Registry (GHCR)** as `ghcr.io/hatasaki/ai-foundry-agent-mcp-server:latest`. You can deploy this pre-built image straight to
+**GitHub Container Registry (GHCR)** as `ghcr.io/hatasaki/foundryagent-mcp-stub:latest`. You can deploy this pre-built image straight to
 Azure Container Apps—no local `docker build` / `docker push` required.
 
 ```bash
@@ -82,7 +82,7 @@ az containerapp up \
   --name foundry-mcp-server \
   --resource-group <RESOURCE_GROUP> \
   --environment <CONTAINER_APPS_ENV> \
-  --image ghcr.io/hatasaki/ai-foundry-agent-mcp-server:latest \
+  --image ghcr.io/hatasaki/foundryagent-mcp-stub:latest \
   --target-port 3000 \
   --ingress external \
   --secrets API_KEY=$API_KEY \
