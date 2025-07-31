@@ -1,4 +1,4 @@
-# AI-Foundry-Agent-MCP-Server
+# FoundryAgent-MCP-Stub
 
 ## Overview
 This repository provides a lightweight MCP (Model Context Protocol) server that exposes an Azure AI Foundry Agent as an MCP **tool**.  
