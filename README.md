@@ -77,25 +77,45 @@ Azure Container Apps—no local `docker build` / `docker push` required.
 az login
 az account set --subscription <SUBSCRIPTION_ID>
 
-# 1) Deploy the latest image published to GHCR
+# (Set environment variables for reuse)
+export RESOURCE_GROUP="<your-resource-group>"  
+export YOUR_REGION="<your-region>"
+
+# 1) Deploy (initial) the latest image published to GHCR
+
 az containerapp up \
   --name foundry-mcp-server \
-  --resource-group <RESOURCE_GROUP> \
-  --environment <CONTAINER_APPS_ENV> \
+  --resource-group $RESOURCE_GROUP \
+  --location $YOUR_REGION \
   --image ghcr.io/hatasaki/foundryagent-mcp-stub:latest \
   --target-port 3000 \
   --ingress external \
-  --secrets API_KEY=$API_KEY \
   --env-vars AZURE_AI_ENDPOINT=$AZURE_AI_ENDPOINT \
              AZURE_AI_AGENT_ID=$AZURE_AI_AGENT_ID \
-             API_KEY=secretref:API_KEY \
-             PORT=3000 \
-  --system-assigned                   # Enable a system-assigned managed identity
+             PORT=3000
+
+# 1.1) create secret
+az containerapp secret set \
+  --name foundry-mcp-server \
+  --resource-group $RESOURCE_GROUP \
+  --secrets api-key=$API_KEY
+
+# 1.2) set API_KEY to refer secret（secretref:）
+az containerapp update \
+  --name foundry-mcp-server \
+  --resource-group $RESOURCE_GROUP \
+  --set-env-vars API_KEY=secretref:api-key
+
+# 1.3) enable managed identity
+az containerapp identity assign \
+  --name foundry-mcp-server \
+  --resource-group $RESOURCE_GROUP \
+  --system-assigned
 
 # 2) Grant the managed identity access to Azure AI Foundry (one-time)
 PRINCIPAL_ID=$(az containerapp show \
   --name foundry-mcp-server \
-  --resource-group <RESOURCE_GROUP> \
+  --resource-group $RESOURCE_GROUP \
   --query "identity.principalId" -o tsv)
 
 az role assignment create \
@@ -104,9 +124,9 @@ az role assignment create \
   --scope $(az resource show --name <AI_Foundry_Name> --resource-group <FOUNDRY_RESOURCE_GROUP> --resource-type Microsoft.CognitiveServices/accounts --query id --output tsv)
 
 # 3) Verify and check your container app's ingress url
-az containerapp show --name foundry-mcp-server --resource-group <RESOURCE_GROUP> -o table
+az containerapp show --name foundry-mcp-server --resource-group $RESOURCE_GROUP -o table
 
-# 4) Add MCP Clinet (Such as VSCode, MCP Client for Azure) to connect
+# 4) Add MCP Client (Such as VSCode, MCP Client for Azure) to connect
 VSCode mcp.json sample:
 {
   "servers": {
